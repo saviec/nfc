@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Нажмите, чтобы слушать</title>
+<style>
+  html, body {
+    margin: 0; height: 100%;
+    background: #111; color: #fff;
+    font-family: system-ui, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #playBtn {
+    width: 70vmin; height: 70vmin; max-width: 420px; max-height: 420px;
+    border-radius: 50%; border: none; cursor: pointer;
+    background: #1db954; color: #fff;
+    font-size: clamp(28px, 8vmin, 64px);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 40px rgba(29,185,84,.4);
+    transition: transform .1s;
+  }
+  #playBtn:active { transform: scale(.96); }
+  #playBtn:disabled { background: #555; cursor: default; }
+  #status { position: fixed; bottom: 16px; width: 100%; text-align: center; font-size: 14px; opacity: .7; }
+</style>
+</head>
+<body>
+
+<button id="playBtn" aria-label="Слушать и перейти">▶</button>
+<div id="status">Нажмите кнопку</div>
+<audio id="player" preload="none"></audio>
+
+<script>
+  // ==== НАСТРОЙКИ ====
+  const TRACKS = [
+    "audio/1.mp3",
+    "audio/2.mp3"
+  ];
+  const TARGET_URL = "https://site2.com"; // второй сайт с информацией
+  // ====================
+
+  const btn = document.getElementById('playBtn');
+  const player = document.getElementById('player');
+  const status = document.getElementById('status');
+
+  // случайный трек (с обходом кэша)
+  const track = TRACKS[Math.floor(Math.random() * TRACKS.length)] + "?r=" + Date.now();
+  player.src = track;
+
+  btn.addEventListener('click', () => {
+    // 1) запуск звука — реальный жест, браузер разрешит
+    player.play().catch(err => {
+      console.warn('play failed:', err);
+      status.textContent = 'Не удалось запустить аудио';
+    });
+
+    // 2) переход на второй сайт в новой вкладке
+    //    window.open синхронно внутри click — не блокируется
+    const win = window.open(TARGET_URL, '_blank');
+    if (!win) {
+      status.textContent = 'Разрешите всплывающие окна или нажмите ещё раз';
+    } else {
+      btn.disabled = true;
+      status.textContent = 'Играет аудио, сайт открыт в новой вкладке';
+    }
+  });
+</script>
+
+</body>
+</html>
